@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>TNH Vendor Portal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#f8fafc;color:#0f172a}
+.wrap{max-width:1180px;margin:auto;padding:18px}.head{background:#0f172a;color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.brand{font-size:20px;font-weight:900}.sub,.muted{font-size:12px;color:#64748b}.head .sub{color:#cbd5e1}.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;margin-bottom:12px}
+.title{font-size:18px;font-weight:900}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.field{display:flex;flex-direction:column;gap:5px}label{font-size:12px;font-weight:800;color:#475569}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:8px;font:inherit}
+textarea{min-height:70px}.table{overflow:auto;border:1px solid #e2e8f0;border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1050px}
+th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}th{background:#f8fafc}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}
+button{border:0;border-radius:9px;padding:9px 12px;background:#0f172a;color:#fff;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+.msg{padding:10px;border-radius:9px;margin:8px 0;font-size:12px}.ok{background:#ecfdf5;color:#065f46}.err{background:#fef2f2;color:#991b1b}.warn{background:#fffbeb;color:#92400e}.hidden{display:none}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.wrap{padding:10px}}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="brand">TNH Vendor Portal</div>
+    <div class="sub">Cổng tiếp nhận báo giá nhà cung cấp — dữ liệu gửi trực tiếp vào hệ thống TNH</div>
+  </div>
+
+  <div id="status" class="card">
+    <div class="title">Đang tải yêu cầu báo giá...</div>
+    <div class="muted">Vui lòng không đóng trang.</div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <div id="rfqTitle" class="title"></div>
+          <div id="rfqMeta" class="muted" style="margin-top:5px"></div>
+          <div id="vendorMeta" class="muted" style="margin-top:5px"></div>
+        </div>
+        <span id="inviteBadge" class="badge"></span>
+      </div>
+    </div>
+
+    <form id="quoteForm">
+      <div class="card">
+        <div class="title" style="font-size:15px;margin-bottom:8px">1. Báo giá từng dòng hàng</div>
+        <div class="table">
+          <table>
+            <thead><tr>
+              <th>STT</th><th>Hàng hóa / yêu cầu</th><th>Trạng thái</th><th>Hãng</th><th>Model</th><th>Xuất xứ</th>
+              <th>Đơn giá trước VAT *</th><th>VAT %</th><th>Giao hàng</th><th>Bảo hành</th><th>Ghi chú</th>
+            </tr></thead>
+            <tbody id="itemBody"></tbody>
+          </table>
+        </div>
+        <div class="muted" style="margin-top:7px">Tất cả dòng hàng phải chọn Có báo giá hoặc Không báo giá.</div>
+      </div>
+
+      <div class="card">
+        <div class="title" style="font-size:15px;margin-bottom:8px">2. Điều khoản chung</div>
+        <div class="grid">
+          <div class="field"><label>Hiệu lực báo giá đến</label><input id="validUntil" type="date"></div>
+          <div class="field"><label>Điều khoản thanh toán</label><input id="paymentTerm"></div>
+          <div class="field"><label>PDF báo giá *</label><input id="quotePdf" type="file" accept="application/pdf" required></div>
+          <div class="field"><label>Catalog</label><input id="catalog" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+        </div>
+        <div class="grid" style="margin-top:8px">
+          <div class="field"><label>Ủy quyền hãng</label><input id="authorization" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+          <div class="field" style="grid-column:span 3"><label>Ghi chú chung</label><textarea id="note"></textarea></div>
+        </div>
+        <div id="fileRequirement" class="muted" style="margin-top:7px"></div>
+      </div>
+
+      <div id="submitMessage"></div>
+      <div class="row" style="justify-content:flex-end"><button id="submitBtn" type="submit">Gửi báo giá</button></div>
+    </form>
+  </div>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>
