@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://tynhqzxhgxrjhamccxcl.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'self'">
+<title>TNH Procurement</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f1f5f9;color:#0f172a}
+.hidden{display:none!important}.login{max-width:420px;margin:10vh auto;background:#fff;padding:24px;border:1px solid #e2e8f0;border-radius:18px}
+.top{background:#0f172a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;font-size:18px}
+.sub,.muted{font-size:12px;color:#64748b}.top .sub{color:#94a3b8}.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:220px 1fr}
+.side{background:#fff;border-right:1px solid #e2e8f0;padding:14px;min-height:calc(100vh - 60px)}main{padding:18px}.nav{display:flex;flex-direction:column;gap:6px}
+button{border:0;border-radius:9px;padding:9px 12px;background:#0f172a;color:#fff;font-weight:800;cursor:pointer}.nav button{background:transparent;color:#334155;text-align:left}
+.nav button.active,.secondary{background:#e2e8f0;color:#0f172a}.danger{background:#991b1b}.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{font-size:26px;font-weight:900}.title{font-size:20px;font-weight:900;margin:0 0 4px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:12px;font-weight:800;color:#475569}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:9px;font:inherit}textarea{min-height:70px}
+.table{overflow:auto;border:1px solid #e2e8f0;border-radius:10px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:9px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}th{background:#f8fafc}
+.msg{padding:10px;border-radius:9px;margin:8px 0;font-size:12px}.ok{background:#ecfdf5;color:#065f46}.err{background:#fef2f2;color:#991b1b}.warn{background:#fffbeb;color:#92400e}
+.item{display:grid;grid-template-columns:2fr 2fr .7fr .7fr auto;gap:7px;margin:7px 0}.link{word-break:break-all;background:#f8fafc;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px}
+a{color:#0f172a;font-weight:700}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{min-height:auto;border-right:0;border-bottom:1px solid #e2e8f0}.nav{flex-direction:row;overflow:auto}.cards,.grid{grid-template-columns:1fr 1fr}.item{grid-template-columns:1fr 1fr}}@media(max-width:520px){.cards,.grid,.item{grid-template-columns:1fr}main{padding:10px}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="title">TNH Procurement</div>
+  <div class="muted">Pilot vận hành thật — Supabase Auth / API / Database</div>
+  <div id="loginMsg"></div>
+  <div class="field" style="margin-top:16px"><label>Email</label><input id="email" autocomplete="username"></div>
+  <div class="field" style="margin-top:9px"><label>Mật khẩu</label><input id="password" type="password" autocomplete="current-password"></div>
+  <button id="loginBtn" style="width:100%;margin-top:14px">Đăng nhập</button>
+</div>
+
+<div id="app" class="hidden">
+  <div class="top">
+    <div><div class="brand">TNH Procurement</div><div class="sub">RFQ & Vendor Portal — production pilot</div></div>
+    <div class="row"><span id="who" class="sub"></span><button id="logoutBtn" class="secondary">Đăng xuất</button></div>
+  </div>
+  <div class="layout">
+    <aside class="side">
+      <div class="nav">
+        <button data-view="dashboard" class="active">Tổng quan</button>
+        <button data-view="vendors">Nhà cung cấp</button>
+        <button data-view="rfqs">RFQ</button>
+        <button data-view="compare">So sánh giá</button>
+        <button data-view="account">Tài khoản</button>
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var SB='https://tynhqzxhgxrjhamccxcl.supabase.co';
+var KEY='sb_publishable_c2c-r_PjeXVA7LJHylckZA_Gv7F5XTK';
+var API=SB+'/functions/v1/tnh-procurement-api';
+var S={me:null,vendors:[],rfqs:[],view:'dashboard',compareRfq:null};
+
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function msg(t,type){return '<div class="msg '+(type||'ok')+'">'+esc(t)+'</div>'}
+function date(v){return v?new Date(v).toLocaleString('vi-VN'):''}
+function money(v){return new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}).format(Number(v||0))+' đ'}
+function access(){return sessionStorage.getItem('tnh_access_token')||''}
+function refresh(){return sessionStorage.getItem('tnh_refresh_token')||''}
+function saveTokens(d){sessionStorage.setItem('tnh_access_token',d.access_token||'');sessionStorage.setItem('tnh_refresh_token',d.refresh_token||'')}
+
+async function authPassword(email,password){
+  var r=await fetch(SB+'/auth/v1/token?grant_type=password',{
+    method:'POST',
+    headers:{'apikey':KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,password:password})
+  });
+  var d=await r.json().catch(function(){return {}});
+  if(!r.ok||!d.access_token)throw new Error(d.error_description||d.msg||'Email hoặc mật khẩu không đúng.');
+  saveTokens(d);
+}
+async function refreshToken(){
+  var rt=refresh();if(!rt)return false;
+  var r=await fetch(SB+'/auth/v1/token?grant_type=refresh_token',{
+    method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({refresh_token:rt})
+  });
+  var d=await r.json().catch(function(){return {}});
+  if(!r.ok||!d.access_token){sessionStorage.removeItem('tnh_access_token');sessionStorage.removeItem('tnh_refresh_token');return false}
+  saveTokens(d);return true;
+}
+async function api(action,opts,retry){
+  opts=opts||{};
+  var t=access();if(!t)throw new Error('Phiên đăng nhập chưa có.');
+  opts.headers=Object.assign({'Authorization':'Bearer '+t,'X-TNH-Request':'1'},opts.headers||{});
+  if(opts.body&&typeof opts.body!=='string'){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  var r=await fetch(API+'?action='+encodeURIComponent(action),opts);
+  if(r.status===401&&retry!==false&&await refreshToken())return api(action,opts,false);
+  var d=await r.json().catch(function(){return {}});
+  if(!r.ok)throw new Error(d.message||d.code||('HTTP '+r.status));
+  return d;
+}
+async function logout(){
+  var t=access();
+  if(t)await fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+t}}).catch(function(){});
+  sessionStorage.removeItem('tnh_access_token');sessionStorage.removeItem('tnh_refresh_token');
+}
+async function changePassword(pw){
+  var t=access();if(!t)throw new Error('Phiên đăng nhập đã hết.');
+  var r=await fetch(SB+'/auth/v1/user',{method:'PUT',headers:{'apikey':KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  var d=await r.json().catch(function(){return {}});
+  if(!r.ok)throw new Error(d.message||d.msg||'Không đổi được mật khẩu.');
+}
+async function loadBase(){
+  var all=await Promise.all([api('me'),api('vendors'),api('rfqs')]);
+  S.me=all[0];S.vendors=all[1].vendors||[];S.rfqs=all[2].rfqs||[];
+}
+function showApp(){
+  $('login').classList.add('hidden');$('app').classList.remove('hidden');
+  $('who').textContent=S.me.profile.full_name+' • '+S.me.roles.join(', ');
+}
+function showLogin(){
+  $('app').classList.add('hidden');$('login').classList.remove('hidden');
+}
+async function boot(){
+  if(!access()){showLogin();return}
+  try{await loadBase();showApp();render()}catch(e){await logout();showLogin()}
+}
+
+$('loginBtn').onclick=async function(){
+  try{
+    $('loginMsg').innerHTML=msg('Đang đăng nhập...','warn');
+    await authPassword($('email').value.trim(),$('password').value);
+    await loadBase();showApp();render();$('loginMsg').innerHTML='';
+  }catch(e){$('loginMsg').innerHTML=msg(e.message,'err')}
+};
+$('logoutBtn').onclick=async function(){await logout();location.reload()};
+
+document.querySelectorAll('[data-view]').forEach(function(btn){
+  btn.onclick=function(){
+    S.view=btn.dataset.view;
+    document.querySelectorAll('[data-view]').forEach(function(x){x.classList.toggle('active',x===btn)});
+    render();
+  };
+});
+
+async function render(){
+  var main=$('main');main.innerHTML='<div class="card">Đang tải...</div>';
+  try{
+    if(S.view==='dashboard')await renderDashboard(main);
+    else if(S.view==='vendors')renderVendors(main);
+    else if(S.view==='rfqs')renderRfqs(main);
+    else if(S.view==='compare')renderCompare(main);
+    else if(S.view==='account')renderAccount(main);
+  }catch(e){main.innerHTML=msg(e.message,'err')}
+}
+async function renderDashboard(main){
+  var d=await api('dashboard');
+  main.innerHTML='<h2 class="title">Tổng quan</h2><div class="muted">Dữ liệu trực tiếp từ hệ thống.</div>'+
+  '<div class="cards" style="margin-top:12px">'+
+  [['RFQ',d.counts.rfqs],['NCC',d.counts.vendors],['Báo giá',d.counts.quotations],['Lượt mời',d.counts.invitations]].map(function(x){
+    return '<div class="card"><div class="muted">'+x[0]+'</div><div class="metric">'+x[1]+'</div></div>';
+  }).join('')+'</div>'+
+  '<div class="card"><b>RFQ gần đây</b><div class="table" style="margin-top:8px"><table><thead><tr><th>Mã</th><th>Tên</th><th>Hạn</th><th>Trạng thái</th></tr></thead><tbody>'+
+  (d.recent_rfqs.length?d.recent_rfqs.map(function(r){return '<tr><td>'+esc(r.rfq_code)+'</td><td>'+esc(r.title)+'</td><td>'+esc(date(r.deadline_at))+'</td><td>'+esc(r.status)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="muted">Chưa có dữ liệu.</td></tr>')+
+  '</tbody></table></div></div>';
+}
+function renderVendors(main){
+  main.innerHTML='<div class="row" style="justify-content:space-between"><div><h2 class="title">Nhà cung cấp</h2><div class="muted">Tạo NCC thật để mời báo giá.</div></div><button id="newVendor">+ Thêm NCC</button></div>'+
+  '<div id="vendorForm" class="card hidden"><div class="grid">'+
+  '<div class="field"><label>Tên NCC *</label><input id="vName"></div>'+
+  '<div class="field"><label>Tên ngắn</label><input id="vShort"></div>'+
+  '<div class="field"><label>Mã số thuế *</label><input id="vTax"></div>'+
+  '<div class="field"><label>Mã NCC</label><input id="vCode" placeholder="Tự sinh nếu bỏ trống"></div></div>'+
+  '<div class="field" style="margin-top:8px"><label>Địa chỉ</label><input id="vAddress"></div><div id="vMsg"></div><button id="saveVendor" style="margin-top:8px">Lưu NCC</button></div>'+
+  '<div class="card"><div class="table"><table><thead><tr><th>Mã</th><th>Tên</th><th>MST</th><th>Trạng thái</th></tr></thead><tbody>'+
+  (S.vendors.length?S.vendors.map(function(v){return '<tr><td>'+esc(v.vendor_code)+'</td><td><b>'+esc(v.name)+'</b><div class="muted">'+esc(v.address||'')+'</div></td><td>'+esc(v.tax_code)+'</td><td>'+esc(v.status)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="muted">Chưa có NCC.</td></tr>')+
+  '</tbody></table></div></div>';
+  $('newVendor').onclick=function(){$('vendorForm').classList.toggle('hidden')};
+  $('saveVendor').onclick=async function(){
+    try{
+      $('vMsg').innerHTML=msg('Đang lưu...','warn');
+      await api('create_vendor',{method:'POST',body:{name:$('vName').value,short_name:$('vShort').value,tax_code:$('vTax').value,vendor_code:$('vCode').value,address:$('vAddress').value}});
+      var d=await api('vendors');S.vendors=d.vendors||[];render();
+    }catch(e){$('vMsg').innerHTML=msg(e.message,'err')}
+  };
+}
+function itemRow(){
+  var d=document.createElement('div');d.className='item';
+  d.innerHTML='<input class="iName" placeholder="Tên hàng hóa *"><input class="iSpec" placeholder="Quy cách / yêu cầu"><input class="iUnit" placeholder="ĐVT *"><input class="iQty" type="number" min="0.0001" step="0.0001" placeholder="SL *"><button type="button" class="secondary">×</button>';
+  d.querySelector('button').onclick=function(){d.remove()};return d;
+}
+function renderRfqs(main){
+  main.innerHTML='<div class="row" style="justify-content:space-between"><div><h2 class="title">RFQ / Yêu cầu báo giá</h2><div class="muted">Tạo RFQ, dòng hàng và link mời NCC.</div></div><button id="newRfq">+ Tạo RFQ</button></div>'+
+  '<div id="rfqForm" class="card hidden"><div class="grid">'+
+  '<div class="field"><label>Tên RFQ *</label><input id="rTitle"></div>'+
+  '<div class="field"><label>Dự án / đơn vị</label><input id="rProject"></div>'+
+  '<div class="field"><label>Hạn báo giá *</label><input id="rDeadline" type="datetime-local"></div>'+
+  '<div class="field"><label>Trạng thái</label><select id="rPublish"><option value="1">Phát hành</option><option value="0">Lưu nháp</option></select></div></div>'+
+  '<div class="row" style="margin-top:8px"><label><input id="rCatalog" type="checkbox" style="width:auto"> Yêu cầu catalog</label><label><input id="rAuth" type="checkbox" style="width:auto"> Yêu cầu ủy quyền hãng</label></div>'+
+  '<b style="display:block;margin-top:12px">Dòng hàng</b><div id="items"></div><button id="addItem" type="button" class="secondary">+ Thêm dòng</button>'+
+  '<div class="field" style="margin-top:8px"><label>Ghi chú</label><textarea id="rNote"></textarea></div><div id="rMsg"></div><button id="saveRfq" style="margin-top:8px">Lưu RFQ</button></div>'+
+  '<div class="card"><div class="table"><table><thead><tr><th>Mã</th><th>Tên</th><th>Hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>'+
+  (S.rfqs.length?S.rfqs.map(function(r){return '<tr><td>'+esc(r.rfq_code)+'</td><td>'+esc(r.title)+'</td><td>'+esc(date(r.deadline_at))+'</td><td>'+esc(r.status)+'</td><td><button class="openRfq secondary" data-id="'+esc(r.id)+'">Mở</button></td></tr>'}).join(''):'<tr><td colspan="5" class="muted">Chưa có RFQ.</td></tr>')+
+  '</tbody></table></div></div><div id="detail"></div>';
+  $('newRfq').onclick=function(){$('rfqForm').classList.toggle('hidden');if(!$('items').children.length)$('items').appendChild(itemRow())};
+  $('addItem').onclick=function(){$('items').appendChild(itemRow())};
+  $('saveRfq').onclick=async function(){
+    try{
+      var items=[].slice.call(document.querySelectorAll('#items .item')).map(function(x){return {item_name:x.querySelector('.iName').value,specification:x.querySelector('.iSpec').value,unit:x.querySelector('.iUnit').value,quantity:Number(x.querySelector('.iQty').value)}});
+      $('rMsg').innerHTML=msg('Đang lưu...','warn');
+      await api('create_rfq',{method:'POST',body:{title:$('rTitle').value,project_name:$('rProject').value,deadline_at:$('rDeadline').value?new Date($('rDeadline').value).toISOString():'',publish:$('rPublish').value==='1',require_catalog:$('rCatalog').checked,require_manufacturer_authorization:$('rAuth').checked,note:$('rNote').value,items:items}});
+      var d=await api('rfqs');S.rfqs=d.rfqs||[];render();
+    }catch(e){$('rMsg').innerHTML=msg(e.message,'err')}
+  };
+  document.querySelectorAll('.openRfq').forEach(function(b){b.onclick=function(){openRfq(b.dataset.id)}});
+}
+async function openRfq(id){
+  var out=$('detail');
+  try{
+    var d=await api('rfq_detail',{method:'POST',body:{rfq_id:id}}),r=d.rfq;
+    out.innerHTML='<div class="card"><b>'+esc(r.rfq_code)+' — '+esc(r.title)+'</b><div class="muted">Hạn: '+esc(date(r.deadline_at))+' • '+esc(r.status)+'</div>'+
+    '<div class="table" style="margin-top:8px"><table><thead><tr><th>STT</th><th>Hàng hóa</th><th>SL</th><th>ĐVT</th></tr></thead><tbody>'+
+    d.items.map(function(i){return '<tr><td>'+i.item_no+'</td><td><b>'+esc(i.item_name)+'</b><div class="muted">'+esc(i.specification||'')+'</div></td><td>'+esc(i.quantity)+'</td><td>'+esc(i.unit)+'</td></tr>'}).join('')+
+    '</tbody></table></div><div class="row" style="margin-top:12px"><select id="inviteVendor" style="max-width:500px">'+
+    S.vendors.filter(function(v){return v.status==='ACTIVE'}).map(function(v){return '<option value="'+esc(v.id)+'">'+esc(v.name)+' — '+esc(v.tax_code)+'</option>'}).join('')+
+    '</select><button id="inviteBtn">Tạo link mời</button><button id="compareBtn" class="secondary">So sánh giá</button></div><div id="inviteMsg"></div></div>';
+    $('inviteBtn').onclick=async function(){
+      try{
+        if(!$('inviteVendor').value)throw new Error('Cần có ít nhất một NCC ACTIVE.');
+        var x=await api('invite',{method:'POST',body:{rfq_id:id,vendor_id:$('inviteVendor').value}});
+        $('inviteMsg').innerHTML=msg('Đã tạo link mời.')+'<div class="link">'+esc(x.portal_url)+'</div><div class="row" style="margin-top:7px"><button id="copyLink" class="secondary">Sao chép</button><a target="_blank" rel="noopener" href="'+esc(x.portal_url)+'">Mở cổng NCC</a></div>';
+        $('copyLink').onclick=function(){navigator.clipboard.writeText(x.portal_url)};
+      }catch(e){$('inviteMsg').innerHTML=msg(e.message,'err')}
+    };
+    $('compareBtn').onclick=function(){S.compareRfq=id;S.view='compare';render()};
+  }catch(e){out.innerHTML=msg(e.message,'err')}
+}
+function renderCompare(main){
+  main.innerHTML='<h2 class="title">So sánh báo giá</h2><div class="card row"><select id="compareRfq" style="max-width:650px">'+
+  S.rfqs.map(function(r){return '<option value="'+esc(r.id)+'">'+esc(r.rfq_code)+' — '+esc(r.title)+'</option>'}).join('')+
+  '</select><button id="loadCompare">Tải bảng so sánh</button></div><div id="compareOut"></div>';
+  if(S.compareRfq)$('compareRfq').value=S.compareRfq;
+  $('loadCompare').onclick=function(){loadCompare($('compareRfq').value)};
+  if(S.rfqs.length)loadCompare($('compareRfq').value);
+}
+async function loadCompare(id){
+  var out=$('compareOut');out.innerHTML='<div class="card">Đang tải...</div>';
+  try{
+    var d=await api('comparison',{method:'POST',body:{rfq_id:id}});
+    if(!d.rows.length){out.innerHTML='<div class="card muted">Chưa có báo giá được nộp.</div>';return}
+    out.innerHTML='<div class="card"><div class="table"><table><thead><tr><th>STT</th><th>Hàng hóa</th><th>NCC</th><th>Đơn giá</th><th>VAT</th><th>Giá sau VAT</th><th>Giao hàng</th><th>Bảo hành</th><th>Version</th></tr></thead><tbody>'+
+    d.rows.map(function(x){return '<tr><td>'+x.item_no+'</td><td>'+esc(x.item_name)+'</td><td><b>'+esc(x.vendor_name)+'</b></td><td>'+money(x.unit_price)+'</td><td>'+esc(x.vat_rate||0)+'%</td><td><b>'+money(x.price_after_vat)+'</b></td><td>'+esc(x.lead_time_days||'')+'</td><td>'+esc(x.warranty_months||'')+'</td><td>v'+esc(x.version_no)+'</td></tr>'}).join('')+
+    '</tbody></table></div></div>';
+  }catch(e){out.innerHTML=msg(e.message,'err')}
+}
+function renderAccount(main){
+  main.innerHTML='<h2 class="title">Tài khoản</h2><div class="card"><b>'+esc(S.me.profile.full_name)+'</b><div class="muted">'+esc(S.me.profile.email)+' • '+esc(S.me.roles.join(', '))+'</div>'+
+  '<div class="grid" style="margin-top:12px"><div class="field"><label>Mật khẩu mới ≥ 12 ký tự</label><input id="newPassword" type="password"></div><div class="field"><label>Nhập lại</label><input id="newPassword2" type="password"></div></div><div id="pwMsg"></div><button id="changePw" style="margin-top:8px">Đổi mật khẩu</button></div>';
+  $('changePw').onclick=async function(){
+    try{
+      var a=$('newPassword').value,b=$('newPassword2').value;
+      if(a.length<12)throw new Error('Mật khẩu tối thiểu 12 ký tự.');
+      if(a!==b)throw new Error('Mật khẩu nhập lại không khớp.');
+      await changePassword(a);$('pwMsg').innerHTML=msg('Đã đổi mật khẩu.');
+    }catch(e){$('pwMsg').innerHTML=msg(e.message,'err')}
+  };
+}
+boot();
+})();
+</script>
+</body>
+</html>
