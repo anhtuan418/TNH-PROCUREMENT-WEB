@@ -6,74 +6,37 @@
 <meta name="referrer" content="no-referrer">
 <title>TNH Vendor Portal</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#f8fafc;color:#0f172a}
-.wrap{max-width:1180px;margin:auto;padding:18px}.head{background:#0f172a;color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px}
-.brand{font-size:20px;font-weight:900}.sub,.muted{font-size:12px;color:#64748b}.head .sub{color:#cbd5e1}.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;margin-bottom:12px}
-.title{font-size:18px;font-weight:900}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.field{display:flex;flex-direction:column;gap:5px}label{font-size:12px;font-weight:800;color:#475569}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:8px;font:inherit}
-textarea{min-height:70px}.table{overflow:auto;border:1px solid #e2e8f0;border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1050px}
-th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}th{background:#f8fafc}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}
-button{border:0;border-radius:9px;padding:9px 12px;background:#0f172a;color:#fff;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
-.msg{padding:10px;border-radius:9px;margin:8px 0;font-size:12px}.ok{background:#ecfdf5;color:#065f46}.err{background:#fef2f2;color:#991b1b}.warn{background:#fffbeb;color:#92400e}.hidden{display:none}
-@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.wrap{padding:10px}}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+:root{--nav:#10231f;--accent:#0d8b72;--accent2:#0a6e5b;--bg:#f5f7f6;--surface:#fff;--line:#e3e8e6;--text:#17211e;--muted:#68736f}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);font-size:13px}.portal-top{background:var(--nav);color:#fff}.top-inner{max-width:1280px;margin:auto;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:18px}.brand{font-size:16px;font-weight:900;letter-spacing:.05em}.brand small{display:block;font-size:10px;color:#8eb1a6;font-weight:600;margin-top:2px}.security{font-size:10px;color:#9db8af;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 9px}.wrap{max-width:1280px;margin:auto;padding:20px 22px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,35,31,.04)}.card-head{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.card-body{padding:15px}.title{font-size:19px;font-weight:900;letter-spacing:-.01em}.section-title{font-size:13px;font-weight:850}.sub,.muted{font-size:11px;color:var(--muted)}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.meta{padding:12px 15px;border-right:1px solid var(--line)}.meta:last-child{border-right:0}.meta span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a9591;font-weight:800;margin-bottom:4px}.meta b{font-size:12px}.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#e9f7f2;color:#14745f;font-size:9px;font-weight:900}.badge:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}.table{overflow:auto}.table table{width:100%;border-collapse:collapse;font-size:11px;min-width:1120px}.table th{padding:9px 10px;text-align:left;background:#f7f9f8;color:#66716d;font-weight:850;border-bottom:1px solid var(--line);white-space:nowrap}.table td{padding:9px 10px;border-bottom:1px solid #edf1ef;vertical-align:top}.table tbody tr:hover{background:#fbfdfc}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.field{display:flex;flex-direction:column;gap:6px}label{font-size:11px;font-weight:800;color:#45514d}input,select,textarea{width:100%;border:1px solid #ccd5d1;border-radius:8px;padding:9px 10px;font:inherit;background:#fff;color:var(--text)}input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(13,139,114,.08)}textarea{min-height:76px}button{border:0;border-radius:8px;padding:10px 14px;background:var(--accent);color:#fff;font-weight:850;cursor:pointer}button:hover{background:var(--accent2)}button:disabled{opacity:.5;cursor:not-allowed}.msg{padding:10px;border-radius:8px;margin:8px 0;font-size:11px}.ok{background:#e9f7f2;color:#126d59}.err{background:#fff0ee;color:#a7352c}.warn{background:#fff5e6;color:#985b14}.hidden{display:none}.help{background:#f7faf9;border:1px dashed #d7e2de;border-radius:8px;padding:10px 12px;font-size:10px;color:#63706b;margin-top:10px}.submitbar{position:sticky;bottom:0;background:rgba(245,247,246,.95);backdrop-filter:blur(8px);padding:10px 0;display:flex;justify-content:flex-end;border-top:1px solid #dde5e2;margin-top:12px}.step{display:inline-flex;width:22px;height:22px;border-radius:6px;background:#e9f7f2;color:#14745f;align-items:center;justify-content:center;font-size:10px;font-weight:900;margin-right:8px}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.meta-grid{grid-template-columns:1fr}.meta{border-right:0;border-bottom:1px solid var(--line)}.meta:last-child{border-bottom:0}.wrap{padding:12px}.top-inner{padding:14px 12px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.security{display:none}}
 </style>
 </head>
 <body>
+<div class="portal-top"><div class="top-inner"><div class="brand">TNH VENDOR PORTAL<small>SUPPLIER COLLABORATION</small></div><div class="security">Secure RFQ workspace</div></div></div>
 <div class="wrap">
-  <div class="head">
-    <div class="brand">TNH Vendor Portal</div>
-    <div class="sub">Cổng tiếp nhận báo giá nhà cung cấp — dữ liệu gửi trực tiếp vào hệ thống TNH</div>
-  </div>
-
-  <div id="status" class="card">
-    <div class="title">Đang tải yêu cầu báo giá...</div>
-    <div class="muted">Vui lòng không đóng trang.</div>
-  </div>
-
+  <div id="status" class="card"><div class="card-body"><div class="title">Đang tải yêu cầu báo giá...</div><div class="muted" style="margin-top:4px">Hệ thống đang xác thực liên kết mời của nhà cung cấp.</div></div></div>
   <div id="app" class="hidden">
     <div class="card">
-      <div class="row" style="justify-content:space-between;align-items:flex-start">
-        <div>
-          <div id="rfqTitle" class="title"></div>
-          <div id="rfqMeta" class="muted" style="margin-top:5px"></div>
-          <div id="vendorMeta" class="muted" style="margin-top:5px"></div>
-        </div>
-        <span id="inviteBadge" class="badge"></span>
-      </div>
+      <div class="card-head"><div><div id="rfqTitle" class="title"></div><div class="muted" style="margin-top:4px">Yêu cầu báo giá được phát hành bởi TNH Procurement</div></div><span id="inviteBadge" class="badge"></span></div>
+      <div class="meta-grid"><div class="meta"><span>Thông tin RFQ</span><b id="rfqMeta"></b></div><div class="meta"><span>Nhà cung cấp</span><b id="vendorMeta"></b></div><div class="meta"><span>Hướng dẫn</span><b>Hoàn thành toàn bộ dòng hàng trước khi gửi</b></div></div>
     </div>
-
     <form id="quoteForm">
       <div class="card">
-        <div class="title" style="font-size:15px;margin-bottom:8px">1. Báo giá từng dòng hàng</div>
-        <div class="table">
-          <table>
-            <thead><tr>
-              <th>STT</th><th>Hàng hóa / yêu cầu</th><th>Trạng thái</th><th>Hãng</th><th>Model</th><th>Xuất xứ</th>
-              <th>Đơn giá trước VAT *</th><th>VAT %</th><th>Giao hàng</th><th>Bảo hành</th><th>Ghi chú</th>
-            </tr></thead>
-            <tbody id="itemBody"></tbody>
-          </table>
-        </div>
-        <div class="muted" style="margin-top:7px">Tất cả dòng hàng phải chọn Có báo giá hoặc Không báo giá.</div>
+        <div class="card-head"><div><span class="step">1</span><span class="section-title">Báo giá từng dòng hàng</span></div><span class="muted">Pricing & commercial response</span></div>
+        <div class="table"><table><thead><tr><th>STT</th><th>Hàng hóa / yêu cầu</th><th>Trạng thái</th><th>Hãng</th><th>Model</th><th>Xuất xứ</th><th>Đơn giá trước VAT *</th><th>VAT %</th><th>Giao hàng</th><th>Bảo hành</th><th>Ghi chú</th></tr></thead><tbody id="itemBody"></tbody></table></div>
+        <div class="card-body" style="padding-top:10px"><div class="help">Mỗi dòng phải chọn <b>Có báo giá</b> hoặc <b>Không báo giá</b>. Khi chọn Có báo giá, đơn giá là trường bắt buộc.</div></div>
       </div>
-
       <div class="card">
-        <div class="title" style="font-size:15px;margin-bottom:8px">2. Điều khoản chung</div>
-        <div class="grid">
-          <div class="field"><label>Hiệu lực báo giá đến</label><input id="validUntil" type="date"></div>
-          <div class="field"><label>Điều khoản thanh toán</label><input id="paymentTerm"></div>
-          <div class="field"><label>PDF báo giá *</label><input id="quotePdf" type="file" accept="application/pdf" required></div>
-          <div class="field"><label>Catalog</label><input id="catalog" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+        <div class="card-head"><div><span class="step">2</span><span class="section-title">Điều khoản & hồ sơ đính kèm</span></div><span class="muted">Commercial terms & documents</span></div>
+        <div class="card-body">
+          <div class="grid"><div class="field"><label>Hiệu lực báo giá đến</label><input id="validUntil" type="date"></div><div class="field"><label>Điều khoản thanh toán</label><input id="paymentTerm" placeholder="Ví dụ: 30 ngày"></div><div class="field"><label>PDF báo giá *</label><input id="quotePdf" type="file" accept="application/pdf" required></div><div class="field"><label>Catalog</label><input id="catalog" type="file" accept="application/pdf,image/jpeg,image/png"></div></div>
+          <div class="grid" style="margin-top:10px"><div class="field"><label>Ủy quyền hãng</label><input id="authorization" type="file" accept="application/pdf,image/jpeg,image/png"></div><div class="field" style="grid-column:span 3"><label>Ghi chú chung</label><textarea id="note" placeholder="Điều kiện thương mại, làm rõ hoặc thông tin bổ sung"></textarea></div></div>
+          <div id="fileRequirement" class="help"></div>
         </div>
-        <div class="grid" style="margin-top:8px">
-          <div class="field"><label>Ủy quyền hãng</label><input id="authorization" type="file" accept="application/pdf,image/jpeg,image/png"></div>
-          <div class="field" style="grid-column:span 3"><label>Ghi chú chung</label><textarea id="note"></textarea></div>
-        </div>
-        <div id="fileRequirement" class="muted" style="margin-top:7px"></div>
       </div>
-
       <div id="submitMessage"></div>
-      <div class="row" style="justify-content:flex-end"><button id="submitBtn" type="submit">Gửi báo giá</button></div>
+      <div class="submitbar"><button id="submitBtn" type="submit">Gửi báo giá cho TNH</button></div>
     </form>
   </div>
 </div>
