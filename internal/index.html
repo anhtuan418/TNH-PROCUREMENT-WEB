@@ -230,8 +230,9 @@ async function openRfq(id){
       try{
         if(!$('inviteVendor').value)throw new Error('Cần có ít nhất một NCC ACTIVE.');
         var x=await api('invite',{method:'POST',body:{rfq_id:id,vendor_id:$('inviteVendor').value}});
-        $('inviteMsg').innerHTML=msg('Đã tạo link mời.')+'<div class="link">'+esc(x.portal_url)+'</div><div class="row" style="margin-top:7px"><button id="copyLink" class="secondary">Sao chép</button><a target="_blank" rel="noopener" href="'+esc(x.portal_url)+'">Mở cổng NCC</a></div>';
-        $('copyLink').onclick=function(){navigator.clipboard.writeText(x.portal_url)};
+        var portalUrl=String(x.portal_url||'').replace('https://anhtuan418.github.io/TNH-GROUP-HOSPITAL/vendor/','https://anhtuan418.github.io/TNH-PROCUREMENT-WEB/vendor/');
+        $('inviteMsg').innerHTML=msg('Đã tạo link mời.')+'<div class="link">'+esc(portalUrl)+'</div><div class="row" style="margin-top:7px"><button id="copyLink" class="secondary">Sao chép</button><a target="_blank" rel="noopener" href="'+esc(portalUrl)+'">Mở cổng NCC</a></div>';
+        $('copyLink').onclick=function(){navigator.clipboard.writeText(portalUrl)};
       }catch(e){$('inviteMsg').innerHTML=msg(e.message,'err')}
     };
     $('compareBtn').onclick=function(){S.compareRfq=id;S.view='compare';render()};
